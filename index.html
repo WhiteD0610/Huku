@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1F3A5F">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>服サーチ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --indigo:#1F3A5F; --indigo2:#2C5282; --stitch:#E2A03F;
+  --bg:#EEF1F4; --paper:#FFFFFF; --ink:#1A1D21; --sub:#5E6772; --line:#D5DBE2; --danger:#C0392B;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){--bg:#12161C;--paper:#1C222B;--ink:#E9EDF2;--sub:#9AA4B0;--line:#2E3742;--indigo2:#5B8BD0}
+}
+*,*::before,*::after{box-sizing:inherit}
+html,body{margin:0;height:100%}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{background:var(--bg);color:var(--ink);font-family:"Zen Kaku Gothic New","Hiragino Sans","Yu Gothic",sans-serif;-webkit-tap-highlight-color:transparent}
+header{background:var(--indigo);color:#fff;padding:14px 18px 0;position:sticky;top:env(safe-area-inset-top,0px);z-index:10}
+header h1{margin:0 0 12px;font-size:20px;font-weight:900;letter-spacing:.04em;display:flex;align-items:center;gap:8px}
+.tabs{display:flex;gap:4px}
+.tabs button{flex:1;background:none;border:0;color:#B9C8DC;font:inherit;font-weight:700;padding:10px 0 12px;border-bottom:3px dashed transparent;font-size:15px}
+.tabs button.on{color:#fff;border-bottom-color:var(--stitch)}
+main{max-width:560px;margin:0 auto;padding:16px 16px 40px}
+.panel{display:none}.panel.on{display:block}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;border:0;border-radius:12px;padding:14px;font:inherit;font-weight:700;font-size:16px;background:var(--indigo);color:#fff}
+.btn.ghost{background:var(--paper);color:var(--indigo2);border:1.5px solid var(--line)}
+.row{display:flex;gap:8px;margin-top:10px}
+.hint{color:var(--sub);font-size:13px;line-height:1.7;margin:8px 2px}
+input[type=text],input[type=number]{width:100%;font:inherit;font-size:17px;color:var(--ink);background:var(--paper);border:1.5px solid var(--line);border-radius:10px;padding:12px}
+input:focus{outline:2px solid var(--indigo2);outline-offset:1px}
+label.f{display:block;font-size:13px;color:var(--sub);font-weight:700;margin:14px 2px 5px}
+.fld{position:relative}
+.fld input{padding-right:44px}
+.fld .clr{position:absolute;right:6px;top:50%;transform:translateY(-50%);width:34px;height:34px;border:0;background:none;color:var(--sub);display:flex;align-items:center;justify-content:center}
+
+/* 使い方カード */
+.guide{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:12px 14px;font-size:13px;line-height:1.7}
+.guide summary{font-weight:700;color:var(--indigo2);cursor:pointer;list-style:none;display:flex;justify-content:space-between}
+.guide summary::-webkit-details-marker{display:none}
+.guide ol{margin:8px 0 0;padding-left:20px}
+
+/* 値札カード */
+.tag{position:relative;background:var(--paper);border-radius:6px 18px 18px 6px;margin:22px 0 0 14px;padding:18px 18px 18px 34px;box-shadow:0 1px 0 var(--line),0 6px 18px rgba(31,58,95,.12)}
+.tag::before{content:"";position:absolute;left:-14px;top:0;bottom:0;width:28px;background:var(--paper);clip-path:polygon(50% 0,100% 0,100% 100%,50% 100%,0 50%)}
+.tag::after{content:"";position:absolute;left:4px;top:50%;width:12px;height:12px;margin-top:-6px;border-radius:50%;background:var(--bg);box-shadow:inset 0 0 0 2px var(--line)}
+.tag .stitch{position:absolute;inset:7px 7px 7px 22px;border:1.5px dashed var(--stitch);border-radius:3px 13px 13px 3px;pointer-events:none;opacity:.7}
+.tag .kind{font-size:12px;color:var(--sub);font-weight:700}
+.qsel{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.qsel button{border:1.5px solid var(--line);background:var(--paper);color:var(--ink);border-radius:8px;padding:8px 10px;font:inherit;font-size:14px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.qsel button.on{border-color:var(--indigo2);color:var(--indigo2);font-weight:700}
+.grp{margin-top:16px}
+.grp h3{font-size:14px;margin:0 0 8px;color:var(--indigo2)}
+.links{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.links a{display:block;text-decoration:none;text-align:center;padding:12px 6px;border-radius:10px;background:var(--bg);color:var(--ink);font-weight:700;font-size:14px;border:1px solid var(--line)}
+.links a small{display:block;font-weight:400;color:var(--sub);font-size:11px;margin-top:2px}
+
+/* 履歴 */
+.hist{list-style:none;margin:12px 0 0;padding:0}
+.hist li{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:10px;display:flex;gap:10px;align-items:center}
+.hist .m{flex:1;min-width:0}
+.hist .c{font-weight:900;font-size:17px;word-break:break-all}
+.hist .s{font-size:12px;color:var(--sub);margin-top:2px}
+.hist .p{font-weight:900;color:var(--indigo2);white-space:nowrap}
+.hist button{border:0;background:none;color:var(--sub);font:inherit;padding:6px}
+.empty{text-align:center;color:var(--sub);padding:40px 10px;line-height:1.8}
+.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:10px 18px;border-radius:999px;font-weight:700;font-size:14px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:50}
+.toast.on{opacity:1}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<header>
+  <h1>
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round"><path d="M8 3l-5 3 2 5 2-1v11h10V10l2 1 2-5-5-3c-.5 1.7-2 3-4 3S8.5 4.7 8 3z"/></svg>
+    服サーチ
+  </h1>
+  <nav class="tabs">
+    <button class="on" data-tab="scan">検索</button>
+    <button data-tab="hist">履歴</button>
+  </nav>
+</header>
+
+<main>
+  <section id="tab-scan" class="panel on">
+    <details class="guide" id="guide">
+      <summary><span>タグの文字をカメラで入れる方法（iPhone）</span><span>＋</span></summary>
+      <ol>
+        <li>入力欄をタップしてカーソルを出す</li>
+        <li>もう一度タップ（または長押し）して出るメニューから「テキストをスキャン」を選ぶ<br>（キーボード上のスキャンアイコンでも可）</li>
+        <li>タグにカメラを向け、黄色い枠で読み取れた文字を確認して「入力」</li>
+      </ol>
+      <p style="margin:6px 0 0">端末内で処理するので無料・無制限・シャッター音なしです。品番は首元ではなく、脇や裾の品質表示タグに書かれていることが多いです。</p>
+    </details>
+
+    <label class="f" for="inBrand">ブランド</label>
+    <div class="fld"><input type="text" id="inBrand" placeholder="例: BEAMS" autocomplete="off" autocapitalize="characters"><button class="clr" data-for="inBrand" aria-label="消去"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+
+    <label class="f" for="inCode">品番・型番・JAN</label>
+    <div class="fld"><input type="text" id="inCode" placeholder="例: 11-11-1234-123" autocomplete="off" autocapitalize="characters"><button class="clr" data-for="inCode" aria-label="消去"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+
+    <label class="f" for="inWord">キーワード（任意）</label>
+    <div class="fld"><input type="text" id="inWord" placeholder="例: デニムジャケット / ウール" autocomplete="off"><button class="clr" data-for="inWord" aria-label="消去"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+
+    <div class="row"><button class="btn" id="btnGo">検索リンクを作る</button></div>
+    <div id="result"></div>
+  </section>
+
+  <section id="tab-hist" class="panel">
+    <input type="text" id="histFilter" placeholder="履歴を絞り込み（ブランド・品番・メモ）">
+    <ul class="hist" id="histList"></ul>
+    <div class="row"><button class="btn ghost" id="btnClear">履歴をすべて削除</button></div>
+  </section>
+</main>
+<div class="toast" id="toast"></div>
+
+<script>
+const $ = s => document.querySelector(s);
+const KEY = 'fukuSearch.history.v1';
+
+function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('on');clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove('on'),1800)}
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function loadHist(){try{return JSON.parse(localStorage.getItem(KEY))||[]}catch(e){return []}}
+function saveHist(h){try{localStorage.setItem(KEY,JSON.stringify(h))}catch(e){toast('保存できませんでした')}}
+function yen(n){return '¥'+Number(n).toLocaleString()}
+
+// 全角→半角、余計な記号や空白を整理
+function norm(s){
+  return String(s||'')
+    .replace(/[Ａ-Ｚａ-ｚ０-９]/g,c=>String.fromCharCode(c.charCodeAt(0)-0xFEE0))
+    .replace(/[－―‐ー−]/g,'-').replace(/[　\s]+/g,' ').trim();
+}
+function normCode(s){
+  s=norm(s).replace(/^(品番|型番|STYLE|ART|NO|No)\.?\s*[:：]?\s*/i,'');
+  return s.replace(/\s*-\s*/g,'-').toUpperCase();
+}
+
+/* ---------- タブ ---------- */
+document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('.tabs button').forEach(x=>x.classList.toggle('on',x===b));
+  $('#tab-scan').classList.toggle('on',b.dataset.tab==='scan');
+  $('#tab-hist').classList.toggle('on',b.dataset.tab==='hist');
+  if(b.dataset.tab==='hist') renderHist();
+});
+document.querySelectorAll('.clr').forEach(b=>b.onclick=()=>{const i=$('#'+b.dataset.for);i.value='';i.focus()});
+['inBrand','inCode','inWord'].forEach(id=>$('#'+id).addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();$('#btnGo').click()}}));
+
+/* ---------- 検索リンク ---------- */
+const E = encodeURIComponent;
+const SITES = {
+  used:[
+    {n:'メルカリ',d:'売り切れ',u:q=>`https://jp.mercari.com/search?keyword=${E(q)}&status=sold_out`},
+    {n:'ヤフオク',d:'落札相場',u:q=>`https://auctions.yahoo.co.jp/closedsearch/closedsearch?p=${E(q)}`},
+    {n:'ラクマ',d:'売り切れ',u:q=>`https://fril.jp/s?query=${E(q)}&transaction=soldout`},
+    {n:'セカスト',d:'オンライン在庫',u:q=>`https://www.2ndstreet.jp/search?keyword=${E(q)}`},
+  ],
+  info:[
+    {n:'Google',d:'商品情報',u:q=>`https://www.google.com/search?q=${E(q)}`},
+    {n:'Google画像',d:'見た目で確認',u:q=>`https://www.google.com/search?tbm=isch&q=${E(q)}`},
+    {n:'楽天市場',d:'新品価格',u:q=>`https://search.rakuten.co.jp/search/mall/${E(q)}/`},
+    {n:'Yahoo!ショッピング',d:'新品価格',u:q=>`https://shopping.yahoo.co.jp/search?p=${E(q)}`},
+  ]
+};
+function linksHTML(list,q){return list.map(s=>`<a href="${s.u(q)}" target="_blank" rel="noopener">${s.n}<small>${s.d}</small></a>`).join('')}
+
+$('#btnGo').onclick=()=>{
+  const brand=norm($('#inBrand').value), code=normCode($('#inCode').value), word=norm($('#inWord').value);
+  $('#inBrand').value=brand; $('#inCode').value=code; $('#inWord').value=word;
+  if(!brand&&!code&&!word){toast('どれか1つは入力してください');return}
+  document.activeElement.blur();
+  showResult({brand,code,word});
+};
+
+function showResult(st){
+  const {brand,code,word}=st;
+  const cands=[...new Set([
+    [brand,code].filter(Boolean).join(' '),
+    code,
+    [brand,word].filter(Boolean).join(' '),
+    [brand,code,word].filter(Boolean).join(' '),
+  ].filter(Boolean))];
+  const q0=st.query&&cands.includes(st.query)?st.query:cands[0];
+  $('#result').innerHTML=`
+  <div class="tag"><span class="stitch"></span>
+    <div class="kind">検索語</div>
+    <div class="qsel" id="qsel">${cands.map(c=>`<button>${esc(c)}</button>`).join('')}</div>
+    <input type="text" id="rQuery" value="${esc(q0)}" style="margin-top:8px" autocomplete="off">
+    <div id="rLinks"></div>
+    <label class="f" for="rPrice">店頭価格（円）</label>
+    <input type="number" id="rPrice" inputmode="numeric" placeholder="例: 1980" value="${esc(st.price||'')}">
+    <label class="f" for="rMemo">メモ</label>
+    <input type="text" id="rMemo" placeholder="店舗・サイズ・状態・相場など" value="${esc(st.memo||'')}">
+    <div class="row"><button class="btn" id="btnSave">履歴に保存</button></div>
+  </div>`;
+  const upd=()=>{
+    const q=norm($('#rQuery').value);
+    $('#rLinks').innerHTML=q?`<div class="grp"><h3>中古相場</h3><div class="links">${linksHTML(SITES.used,q)}</div></div>
+      <div class="grp"><h3>定価・商品情報</h3><div class="links">${linksHTML(SITES.info,q)}</div></div>`:'';
+    document.querySelectorAll('#qsel button').forEach(b=>b.classList.toggle('on',b.textContent===q));
+  };
+  document.querySelectorAll('#qsel button').forEach(b=>b.onclick=()=>{$('#rQuery').value=b.textContent;upd()});
+  $('#rQuery').oninput=upd; upd();
+  $('#btnSave').onclick=()=>{
+    const h=loadHist();
+    h.unshift({id:Date.now(),brand,code,word,query:norm($('#rQuery').value),
+      price:$('#rPrice').value,memo:$('#rMemo').value.trim(),at:new Date().toISOString()});
+    saveHist(h.slice(0,500)); toast('履歴に保存しました');
+  };
+  $('#result').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+/* ---------- 履歴 ---------- */
+function renderHist(){
+  const f=$('#histFilter').value.trim().toLowerCase();
+  const all=loadHist();
+  const h=all.filter(x=>!f||[x.brand,x.code,x.word,x.memo,x.query].join(' ').toLowerCase().includes(f));
+  const ul=$('#histList');
+  if(!h.length){ul.innerHTML=`<li class="empty" style="display:block;border:0;background:none">${f?'該当する履歴はありません':'保存した服がここに並びます。<br>検索後に「履歴に保存」を押してください。'}</li>`;return}
+  ul.innerHTML=h.map(x=>{
+    const d=new Date(x.at);
+    const title=[x.brand,x.code].filter(Boolean).join(' ')||x.word||x.query;
+    const sub=[`${d.getMonth()+1}/${d.getDate()}`,x.word&&title!==x.word?x.word:'',x.memo].filter(Boolean).join('　');
+    return `<li data-id="${x.id}">
+      <div class="m"><div class="c">${esc(title)}</div><div class="s">${esc(sub)}</div></div>
+      ${x.price?`<div class="p">${yen(x.price)}</div>`:''}
+      <button class="del" aria-label="削除"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    </li>`}).join('');
+  ul.querySelectorAll('li[data-id]').forEach(li=>{
+    const x=all.find(y=>String(y.id)===li.dataset.id);
+    li.querySelector('.m').onclick=()=>{
+      document.querySelector('.tabs button[data-tab=scan]').click();
+      $('#inBrand').value=x.brand||''; $('#inCode').value=x.code||''; $('#inWord').value=x.word||'';
+      showResult(x);
+    };
+    li.querySelector('.del').onclick=()=>{saveHist(loadHist().filter(y=>String(y.id)!==li.dataset.id));renderHist()};
+  });
+}
+$('#histFilter').oninput=renderHist;
+$('#btnClear').onclick=()=>{if(confirm('履歴をすべて削除しますか？')){saveHist([]);renderHist()}};
+
+// 初回は使い方を開いておく
+try{ if(!localStorage.getItem('fukuSearch.guided')){ $('#guide').open=true; localStorage.setItem('fukuSearch.guided','1'); } }catch(e){}
+</script>
+</body>
+</html>
